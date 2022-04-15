@@ -10,10 +10,10 @@ class Cast(Base):
 
     id = Column(Integer, primary_key=True)
     character = Column(String)
-    staff_id = Column(Integer, ForeignKey("staff.id"))
+    people_id = Column(Integer, ForeignKey("people.id"))
     movie_id = Column(Integer, ForeignKey("movie.id"))
 
-    staff = relationship("Staff", back_populates="casts")
+    people = relationship("People", back_populates="casts")
     movie = relationship("Movie", back_populates="casts")
 
     def __repr__(self):
@@ -27,28 +27,28 @@ class Crew(Base):
     id = Column(Integer, primary_key=True)
     department = Column(String)
     job = Column(String)
-    staff_id = Column(Integer, ForeignKey("staff.id"))
+    people_id = Column(Integer, ForeignKey("people.id"))
     movie_id = Column(Integer, ForeignKey("movie.id"))
 
-    staff = relationship("Staff", back_populates="crews")
+    people = relationship("People", back_populates="crews")
     movie = relationship("Movie", back_populates="crews")
 
     def __repr__(self):
         return "<Crew(department='%s', job='%s')>" % (self.department, self.job)
 
 
-# Definition of table "staff" in database
-class Staff(Base):
-    __tablename__ = "staff"
+# Definition of table "people" in database
+class People(Base):
+    __tablename__ = "people"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
     gender = Column(Integer)
-    casts = relationship("Cast", order_by=Cast.id, back_populates="staff")
-    crews = relationship("Crew", order_by=Crew.id, back_populates="staff")
+    casts = relationship("Cast", order_by=Cast.id, back_populates="people")
+    crews = relationship("Crew", order_by=Crew.id, back_populates="people")
 
     def __repr__(self):
-        return "<Staff(name='%s', gender='%s')>" % (self.name, self.gender)
+        return "<People(name='%s', gender='%s')>" % (self.name, self.gender)
 
 
 # Association table to implement a many to many relationship of table movie and genre

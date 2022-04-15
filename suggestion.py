@@ -7,8 +7,8 @@ def load_graph(credit_file_path):
     """Given a file_path, using the file to create a graph
 
     Open the file, read each line of it and create a graph.
-    graph[staff1] = [movie1, movie2, movie3, ...]
-    graph[movie1] = [staff1, staff2, staff3, ...]
+    graph[people1] = [movie1, movie2, movie3, ...]
+    graph[movie1] = [people1, people2, people3, ...]
 
     Parameters
     ----------
@@ -34,27 +34,27 @@ def load_graph(credit_file_path):
     return graph
 
 
-def find_closest_staff(graph, staff, limit=50):
+def find_closest_people(graph, people, limit=50):
     """Using BFS to find the closest names
 
     Parameters
     ----------
     graph: dict
         the dict to save the graph
-    staff: str
-        the target staff
+    people: str
+        the target people
     limit: int
-        the number of closest staffs needed
+        the number of closest peoples needed
 
     Returns
     -------
     list
         a list of names
     """
-    if staff not in graph:
+    if people not in graph:
         return []
-    queue = collections.deque([staff])
-    visited = {staff}
+    queue = collections.deque([people])
+    visited = {people}
     is_movie = True
     suggestions = []
     while queue and len(suggestions) < limit:

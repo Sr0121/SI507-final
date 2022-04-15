@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import json
-from models import Base, Movie, Staff, Cast, Crew, Genre
+from models import Base, Movie, People, Cast, Crew, Genre
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, or_
 
@@ -37,7 +37,7 @@ class Sess:
         # load data from csv files
         credits_data = pd.read_csv(credit_file_path)
         movie_data = pd.read_csv(movie_file_path)
-        staff_map = {}
+        people_map = {}
         movie_map = {}
         genre_map = {}
         # build objects from the csv data
@@ -45,18 +45,18 @@ class Sess:
             movie = Movie(id=row["movie_id"], title=row["title"])
             casts = json.loads(row["cast"])
             for cast in casts:
-                if cast["id"] not in staff_map:
-                    staff_map[cast["id"]] = Staff(id=cast["id"], name=cast["name"], gender=cast["gender"])
+                if cast["id"] not in people_map:
+                    people_map[cast["id"]] = People(id=cast["id"], name=cast["name"], gender=cast["gender"])
                 new_cast = Cast(character=cast["character"])
-                staff_map[cast["id"]].casts.append(new_cast)
+                people_map[cast["id"]].casts.append(new_cast)
                 movie.casts.append(new_cast)
 
             crews = json.loads(row["crew"])
             for crew in crews:
-                if crew["id"] not in staff_map:
-                    staff_map[crew["id"]] = Staff(id=crew["id"], name=crew["name"], gender=crew["gender"])
+                if crew["id"] not in people_map:
+                    people_map[crew["id"]] = People(id=crew["id"], name=crew["name"], gender=crew["gender"])
                 new_crew = Crew(department=crew["department"], job=crew["job"])
-                staff_map[cast["id"]].crews.append(new_crew)
+                people_map[cast["id"]].crews.append(new_crew)
                 movie.crews.append(new_crew)
 
             movie_map[row["movie_id"]] = movie
@@ -68,13 +68,13 @@ class Sess:
                     genre_map[genre["id"]] = Genre(id=genre["id"], name=genre["name"])
                 movie_map[row["id"]].genres.append(genre_map[genre["id"]])
 
-        staff_list = [v for v in staff_map.values()]
+        people_list = [v for v in people_map.values()]
         movie_list = [v for v in movie_map.values()]
         # insert objects to the database
-        self.session.add_all(staff_list + movie_list)
+        self.session.add_all(people_list + movie_list)
         self.session.commit()
 
-    def find_movies(self, genre_list=[], character_list=[], staff_list=[]):
+    def find_movies(self, genre_list=[], character_list=[], people_list=[]):
         """search the movie from the input information
 
         Parameters
@@ -83,8 +83,8 @@ class Sess:
             the genre types that the target movies should have
         character_list: list
             the characters that the target movies should have
-        staff_list: list
-            the staff names that the target movies should have
+        people_list: list
+            the people names that the target movies should have
 
         Returns
         -------
@@ -96,10 +96,10 @@ class Sess:
             res = res.filter(Movie.genres.any(Genre.name == genre))
         for ch in character_list:
             res = res.filter(Movie.casts.any(Cast.character == ch))
-        for staff in staff_list:
-            subquery = self.session.query(Staff.id).filter(Staff.name == staff).subquery()
-            res = res.filter(or_(Movie.casts.any(Cast.staff_id.in_(subquery)),
-                                 Movie.crews.any(Crew.staff_id.in_(subquery))))
+        for people in people_list:
+            subquery = self.session.query(People.id).filter(People.name == people).subquery()
+            res = res.filter(or_(Movie.casts.any(Cast.people_id.in_(subquery)),
+                                 Movie.crews.any(Crew.people_id.in_(subquery))))
         return res.all()
 
     def find_all_genres(self):

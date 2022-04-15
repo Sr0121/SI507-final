@@ -37,13 +37,13 @@ def find_movies():
     character_list = list(filter(lambda x: len(x) > 0, map(lambda x: x.strip(), input().split(","))))
 
     print("What casts or crews are you looking for in the movies? (seperated by \",\" or leave blank to find all)")
-    staff_list = list(filter(lambda x: len(x) > 0, map(lambda x: x.strip(), input().split(","))))
+    people_list = list(filter(lambda x: len(x) > 0, map(lambda x: x.strip(), input().split(","))))
 
-    res_map = print_list(sess.find_movies(genre_list, character_list, staff_list))
+    res_map = print_list(sess.find_movies(genre_list, character_list, people_list))
 
-    if len(staff_list) == 1:
+    if len(people_list) == 1:
         print("Similar Actors:")
-        print_list(suggestion.find_closest_staff(graph, staff_list[0], limit=5))
+        print_list(suggestion.find_closest_people(graph, people_list[0], limit=5))
 
     if len(res_map) == 0:
         print("No matches!")
@@ -66,7 +66,7 @@ def find_similar_actors():
     print("Please enter the name of the actor: ")
     name = input()
     print("Similar Actors:")
-    print_list(suggestion.find_closest_staff(graph, name, limit=10))
+    print_list(suggestion.find_closest_people(graph, name, limit=10))
 
 
 if __name__ == '__main__':
