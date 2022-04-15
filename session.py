@@ -2,22 +2,45 @@ import os
 import pandas as pd
 import json
 from models import Base, Movie, Staff, Cast, Crew, Genre
-from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
-
-engine = create_engine("sqlite:///movie.db", echo=True, future=True)
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, or_
 
 
-def init_database(credit_file_path, movie_file_path):
-    if os.path.exists("./movie.db"):
-        return
-    Base.metadata.create_all(engine)
-    with Session(engine) as session:
+# Used to handle database
+class Sess:
+    def __init__(self):
+        # Connect to the database
+        self.engine = create_engine("sqlite:///movie.db", future=True)
+        self.session = sessionmaker(bind=self.engine)()
+
+    def __del__(self):
+        # close the connection to the database
+        self.session.close()
+
+    def init_database(self, credit_file_path, movie_file_path):
+        """Check if there exists the database file and create the database from the csv files if not.
+
+        Parameters
+        ----------
+        credit_file_path: str
+            the file path to tmdb_5000_credits.csv
+        movie_file_path: str
+            the file path to tmdb_5000_movies.csv
+        """
+        # if there exists the database, then return directly
+        if os.path.exists("./movie.db"):
+            return
+
+        print("Building Database...")
+        # create table
+        Base.metadata.create_all(self.engine)
+        # load data from csv files
         credits_data = pd.read_csv(credit_file_path)
         movie_data = pd.read_csv(movie_file_path)
         staff_map = {}
         movie_map = {}
         genre_map = {}
+        # build objects from the csv data
         for _, row in credits_data.iterrows():
             movie = Movie(id=row["movie_id"], title=row["title"])
             casts = json.loads(row["cast"])
@@ -47,5 +70,44 @@ def init_database(credit_file_path, movie_file_path):
 
         staff_list = [v for v in staff_map.values()]
         movie_list = [v for v in movie_map.values()]
-        session.add_all(staff_list + movie_list)
-        session.commit()
+        # insert objects to the database
+        self.session.add_all(staff_list + movie_list)
+        self.session.commit()
+
+    def find_movies(self, genre_list=[], character_list=[], staff_list=[]):
+        """search the movie from the input information
+
+        Parameters
+        ----------
+        genre_list: list
+            the genre types that the target movies should have
+        character_list: list
+            the characters that the target movies should have
+        staff_list: list
+            the staff names that the target movies should have
+
+        Returns
+        -------
+        list
+            a list of Movies that meet the requirements
+        """
+        res = self.session.query(Movie)
+        for genre in genre_list:
+            res = res.filter(Movie.genres.any(Genre.name == genre))
+        for ch in character_list:
+            res = res.filter(Movie.casts.any(Cast.character == ch))
+        for staff in staff_list:
+            subquery = self.session.query(Staff.id).filter(Staff.name == staff).subquery()
+            res = res.filter(or_(Movie.casts.any(Cast.staff_id.in_(subquery)),
+                                 Movie.crews.any(Crew.staff_id.in_(subquery))))
+        return res.all()
+
+    def find_all_genres(self):
+        """return all kinds of genres in the database
+
+        Returns
+        -------
+        list
+            the list contains all kinds of Genres
+        """
+        return self.session.query(Genre).all()

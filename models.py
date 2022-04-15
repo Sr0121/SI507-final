@@ -4,13 +4,14 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table
 Base = declarative_base()
 
 
+# Definition of table "cast" in database
 class Cast(Base):
-    __tablename__ = 'cast'
+    __tablename__ = "cast"
 
     id = Column(Integer, primary_key=True)
     character = Column(String)
-    staff_id = Column(Integer, ForeignKey('staff.id'))
-    movie_id = Column(Integer, ForeignKey('movie.id'))
+    staff_id = Column(Integer, ForeignKey("staff.id"))
+    movie_id = Column(Integer, ForeignKey("movie.id"))
 
     staff = relationship("Staff", back_populates="casts")
     movie = relationship("Movie", back_populates="casts")
@@ -19,24 +20,26 @@ class Cast(Base):
         return "<Cast(character='%s')>" % self.character
 
 
+# Definition of table "crew" in database
 class Crew(Base):
-    __tablename__ = 'crew'
+    __tablename__ = "crew"
 
     id = Column(Integer, primary_key=True)
     department = Column(String)
     job = Column(String)
-    staff_id = Column(Integer, ForeignKey('staff.id'))
-    movie_id = Column(Integer, ForeignKey('movie.id'))
+    staff_id = Column(Integer, ForeignKey("staff.id"))
+    movie_id = Column(Integer, ForeignKey("movie.id"))
 
     staff = relationship("Staff", back_populates="crews")
     movie = relationship("Movie", back_populates="crews")
 
     def __repr__(self):
-        return "<Cast(department='%s', job='%s')>" % (self.department, self.job)
+        return "<Crew(department='%s', job='%s')>" % (self.department, self.job)
 
 
+# Definition of table "staff" in database
 class Staff(Base):
-    __tablename__ = 'staff'
+    __tablename__ = "staff"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -48,33 +51,40 @@ class Staff(Base):
         return "<Staff(name='%s', gender='%s')>" % (self.name, self.gender)
 
 
-movie_genre = Table('movie_genre', Base.metadata,
-                    Column('movie_id', ForeignKey('movie.id'), primary_key=True),
-                    Column('genre_id', ForeignKey('genre.id'), primary_key=True))
+# Association table to implement a many to many relationship of table movie and genre
+movie_genre = Table("movie_genre", Base.metadata,
+                    Column("movie_id", ForeignKey("movie.id"), primary_key=True),
+                    Column("genre_id", ForeignKey("genre.id"), primary_key=True))
 
 
+# Definition of table "genre" in database
 class Genre(Base):
-    __tablename__ = 'genre'
+    __tablename__ = "genre"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    movies = relationship('Movie', secondary=movie_genre, back_populates='genres')
+    movies = relationship("Movie", secondary=movie_genre, back_populates="genres")
 
     def __repr__(self):
-        return "<Genre(name='%s')>" % self.name
+        return self.name
 
 
+# Definition of table "movie" in database
 class Movie(Base):
-    __tablename__ = 'movie'
+    __tablename__ = "movie"
 
     id = Column(Integer, primary_key=True)
     title = Column(String)
 
     casts = relationship("Cast", order_by=Cast.id, back_populates="movie")
     crews = relationship("Crew", order_by=Crew.id, back_populates="movie")
-    genres = relationship("Genre", secondary=movie_genre, back_populates='movies')
+    genres = relationship("Genre", secondary=movie_genre, back_populates="movies")
+
+    def __repr__(self):
+        return self.title
 
 
+# Used to store information obtained online
 class Media:
     def __init__(self, json_data=None):
         self.title = json_data["Title"]
@@ -88,4 +98,11 @@ class Media:
         self.poster = json_data["Poster"]
 
     def __str__(self):
-        return self.title + " (" + str(self.released) + ")"
+        return """%s (%s)
+        Rate: %s
+        Runtime: %s
+        Language: %s
+        Country: %s
+        Awards: %s
+        Poster: %s""" % (self.title, self.released, self.rated, self.run_time,
+                         self.lang, self.country, self.awards, self.poster)
