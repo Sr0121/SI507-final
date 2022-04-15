@@ -87,6 +87,10 @@ class Movie(Base):
 # Used to store information obtained online
 class Media:
     def __init__(self, json_data=None):
+        # if the input is invalid, then leave the title to be none
+        if "Title" not in json_data:
+            self.title = None
+            return
         self.title = json_data["Title"]
         self.year = json_data["Year"]
         self.rated = json_data["Rated"]
@@ -98,6 +102,9 @@ class Media:
         self.poster = json_data["Poster"]
 
     def __str__(self):
+        # if the title is none, that means the media don't have other useful information
+        if not self.title:
+            return "Sorry, the movie information you are looking for is not available on the movie webAPI."
         return """%s (%s)
         Rate: %s
         Runtime: %s

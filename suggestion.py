@@ -44,7 +44,7 @@ def find_closest_people(graph, people, limit=50):
     people: str
         the target people
     limit: int
-        the number of closest peoples needed
+        the number of the closest peoples needed
 
     Returns
     -------

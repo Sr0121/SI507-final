@@ -4,11 +4,13 @@ import suggestion
 import warnings
 
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore")  # ignore warnings
 
+# csv file paths
 credit_file_path = "./data/tmdb_5000_credits.csv"
 movie_file_path = "./data/tmdb_5000_movies.csv"
 
+# init database, graph and the webAPI cache
 webAPI.load_cache()
 sess = Sess()
 sess.init_database(credit_file_path, movie_file_path)
