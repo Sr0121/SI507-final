@@ -3,6 +3,9 @@ UMich SI 507 Final Project
 
 In this project, we are trying to build a program to help people search for the movie information. Users can use this program to search movies by genre, character, crew and cast, and can choose the movie to see the detail of it. In addition, if the user searches by cast name, the program will display some names associated with that name as the suggestions.
 
+Run *python main.py* in the project directory to start the program.
+
+
 * Required Packages: sqlalchemy, pandas, requests
 * Required Database: SQLite
 * Demo Video Link: https://youtu.be/IqUsTg-wc3c
