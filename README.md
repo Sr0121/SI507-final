@@ -4,9 +4,11 @@ UMich SI 507 Final Project
 In this project, we are trying to build a program to help people search for the movie information. Users can use this program to search movies by genre, character, crew and cast, and can choose the movie to see the detail of it. In addition, if the user searches by cast name, the program will display some names associated with that name as the suggestions.
 
 * Required Packages: sqlalchemy, pandas, requests
+* Required Database: SQLite
+* Demo Video Link: https://youtu.be/IqUsTg-wc3c
 
 ## Interaction
-We are going to use the command line to do the interaction and presentation. The whole interaction flow would be a little similar to the project 1. All selection needs user to enter the corresponding number to choose. 
+We are using the command line to do the interaction and presentation. The whole interaction flow would be a little similar to the project 1. All selection needs user to enter the corresponding number to choose. 
 
 Since most of the data in the csv files comes from before 2016, we encourage users to use the movie information before 2016 to query.
 
