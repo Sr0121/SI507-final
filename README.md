@@ -7,6 +7,7 @@ In this project, we are trying to build a program to help people search for the 
 * Required Database: SQLite
 * Demo Video Link: https://youtu.be/IqUsTg-wc3c
 
+
 ## Interaction
 We are using the command line to do the interaction and presentation. The whole interaction flow would be a little similar to the project 1. All selection needs user to enter the corresponding number to choose. 
 
