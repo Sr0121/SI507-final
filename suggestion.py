@@ -1,9 +1,13 @@
 import collections
 import pandas as pd
 import json
+import os
 
 
-def load_graph(credit_file_path):
+graph_path = "./cache/graph.json"
+
+
+def build_graph(credit_file_path):
     """Given a file_path, using the file to create a graph
 
     Open the file, read each line of it and create a graph.
@@ -31,7 +35,17 @@ def load_graph(credit_file_path):
         for crew in crews:
             graph[row["title"]].append(crew["name"])
             graph[crew["name"]].append(row["title"])
-    return graph
+
+    with open(graph_path, "w") as f:
+        json.dump(graph, f)
+
+
+def load_graph(credit_file_path):
+    if not os.path.exists(graph_path):
+        build_graph(credit_file_path)
+
+    with open(graph_path, "r") as f:
+        return json.load(f)
 
 
 def find_closest_people(graph, people, limit=50):
